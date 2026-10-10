@@ -12,8 +12,16 @@ import {
   Dimensions,
   Platform 
 } from 'react-native';
-import { menuItems } from '../data/menu';
+import * as menuData from '../data/menu';
 import MenuItemCard from '../components/MenuItemCard';
+
+// Menu data kisi bhi export naam se mil jayega
+const menuItems =
+  menuData.menuItems ||
+  menuData.mockMenu ||
+  menuData.default ||
+  Object.values(menuData).find(Array.isArray) ||
+  [];
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +31,14 @@ export default function MenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Delivery'); // Delivery vs Pickup
 
   const categories = ['All', 'Starters', 'Mains', 'Desserts', 'Drinks'];
+
+  // Aaj ki date
+  const today = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   // Advanced filtering with search and categories
   const filteredItems = useMemo(() => {
@@ -36,7 +52,7 @@ export default function MenuScreen({ navigation }) {
 
   const handleSelectCategory = useCallback((category) => {
     setSelectedCategory(category);
-  }, [],);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -87,8 +103,8 @@ export default function MenuScreen({ navigation }) {
                 <View style={styles.badgeContainer}>
                   <Text style={styles.badgeText}>SPECIAL DEAL 🔥</Text>
                 </View>
-                <Text style={styles.promoTitle}>20% Off Your First Order!</Text>
-                <Text style={styles.promoSubtitle}>Use code: <Text style={styles.codeHighlight}>WELCOME20</Text></Text>
+                <Text style={styles.promoTitle}>50% Off Your First Order!</Text>
+                <Text style={styles.promoSubtitle}>Use code: <Text style={styles.codeHighlight}>WELCOME50</Text></Text>
               </View>
             </View>
 
@@ -110,6 +126,9 @@ export default function MenuScreen({ navigation }) {
                 )}
               </View>
             </View>
+
+            {/* Today's Date */}
+            <Text style={styles.dateText}>{today}</Text>
 
             {/* Horizontal Category Chips */}
             <View style={styles.categoriesWrapper}>
@@ -305,6 +324,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     padding: 5,
   },
+  dateText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 10,
+  },
   categoriesWrapper: {
     marginVertical: 15,
   },
@@ -397,7 +422,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
   },
-    checkoutButtonText: {
+  checkoutButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,

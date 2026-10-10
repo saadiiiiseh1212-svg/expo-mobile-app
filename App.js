@@ -1,25 +1,41 @@
 // App.js
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, Button, Alert, Platform } from 'react-native';
 import { AuthProvider } from './src/context/AuthContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 import { CartProvider } from './src/context/CartContext';
-
-// Screens import kar rahe hain (testing ke liye aap yahan koi bhi screen render kar sakte hain)
 import MenuScreen from './src/screens/MenuScreen';
-import CartScreen from './src/screens/CartScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import OrderSummaryScreen from './src/screens/OrderSummaryScreen';
-import ReservationScreen from './src/screens/ReservationScreen';
-import ManagerDashboardScreen from './src/screens/ManagerDashboardScreen';
+import { placeDummyOrder } from './src/services/api';
 
 export default function App() {
+  const [status, setStatus] = useState('');
+
+  const showMessage = (title, msg) => {
+    if (Platform.OS === 'web') window.alert(title + ': ' + msg);
+    else Alert.alert(title, msg);
+  };
+
+  const handleDummyOrder = async () => {
+    setStatus('Order bheja ja raha hai...');
+    try {
+      const order = await placeDummyOrder();
+      setStatus('✅ Order placed! ID: ' + order._id);
+      showMessage('Success', 'Order ID: ' + order._id);
+    } catch (e) {
+      setStatus('❌ Error: ' + e.message);
+      showMessage('Error', e.message);
+    }
+  };
+
   return (
     <AuthProvider>
       <ThemeProvider>
         <CartProvider>
           <View style={styles.container}>
-            {/* Filhal hum yahan MenuScreen render kar rahe hain, aap chahayen toh koi aur screen bhi rakh sakte hain */}
+            <View style={styles.btn}>
+              <Button title="Place Dummy Order" onPress={handleDummyOrder} />
+              {status !== '' && <Text style={styles.status}>{status}</Text>}
+            </View>
             <MenuScreen />
           </View>
         </CartProvider>
@@ -29,8 +45,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  btn: { marginTop: 40, marginHorizontal: 16 },
+  status: { marginTop: 8, marginBottom: 8, color: '#000', fontWeight: '600' },
 });
